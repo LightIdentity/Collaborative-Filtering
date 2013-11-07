@@ -1,41 +1,57 @@
+import math
+
 #
-#  Find friends with the most similar interests as you
+# Finds your most similar friends
 #
 
-from rauth import OAuth1Service, OAuth1Session
+# Example dictionary of book ratings by person
+ratings = { 'Joe': {'Brave New World': 4.0, 'Foundation': 5.0, 'Atlas Shrugged': 3.0, 'Oryx and Crake': 3.0 },
+            'Tom': {'Brave New World': 2.0, 'Slaughterhouse Five': 5.0, 'Hunger Games': 2.0},
+            'Lisa': {'Slaughterhouse Five': 4.0, 'Catch-22': 4.0, 'Catcher in the Rye': 1.0},
+            'Tim': {'Brave New World': 5.0, 'Oryx and Crake': 4.0, 'Slaughterhouse Five': 4.0, 'Catch-22': 3.0,
+                    'Foundation': 3.0}
+}
 
-# Enter consumer key and consumer secret
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
+# Compute similarity of interests between two individuals
 
-goodreads = OAuth1Service(
-    consumer_key =  CONSUMER_KEY,
-    consumer_secret = CONSUMER_SECRET,
-    name='goodreads',
-    request_token_url = 'http://www.goodreads.com/oauth/request_token',
-    authorize_url = 'http://www.goodreads.com/oauth/authorize',
-    access_token_url = 'http://www.goodreads.com/oauth/access_token',
-    base_url = 'http://www.goodreads.com/'
-)
+def similar(person,friend):
+    friend_mutual_books = {}
+    your_mutual_books = {}
 
-# Get request token and authorize url
-request_token, request_token_secret = goodreads.get_request_token(header_auth=True)
-authorize_url = goodreads.get_authorize_url(request_token)
+    # Find mutual books
+    for book in friend:
+        if book in person:
+            friend_mutual_books[book] = friend[book]
+            your_mutual_books[book] = person[book]
 
-print 'Visit this URL in your browser: ' + authorize_url
-accepted = 'n'
+    # Calculate Pearson Correlation Coefficient
+    n = len(friend_mutual_books)
+    sum_xy = 0
+    sum_x = 0
+    sum_y = 0
+    sum_x2 = 0
+    sum_y2 = 0
 
-while accepted.lower() == 'n':
-    accepted = raw_input('Have you authorized me? (y/n)')
+    for book in friend_mutual_books:
+        sum_y += friend_mutual_books[book]
+        sum_y2 += pow(friend_mutual_books[book],2)
+        sum_xy += friend_mutual_books[book]*your_mutual_books[book]
 
-# Add book to shelf
+    for ybook in your_mutual_books:
+        sum_x += your_mutual_books[ybook]
+        sum_x2 += pow(your_mutual_books[ybook],2)
 
-session = goodreads.get_auth_session(request_token, request_token_secret)
-#user_id = session.get('https://www.goodreads.com/api/auth_user')
-#print user_id
+    sum_x22 = pow(sum_x,2)
+    sum_y22 = pow(sum_y,2)
 
-ACCESS_TOKEN = session.access_token
-ACCESS_TOKEN_SECRET = session.access_token_secret
+    numerator = ((n*sum_xy) - (sum_x*sum_y))
+    denominator = math.sqrt((n*sum_x2-sum_x22)*(n*sum_y2-sum_y22))
+    if denominator == 0 :
+        return 0
 
-#friends = session.get('https://www.goodreads.com/user_followings/followings.xml?id=USER_ID ',)
+    correlation = numerator/denominator
 
+    return correlation
+
+if __name__ == '__main__':
+    print similar(ratings['Tim'],ratings['Joe'])
