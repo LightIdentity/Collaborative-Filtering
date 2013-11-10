@@ -27,18 +27,23 @@ def recommend(person, similar_friends, ratings):
             if book not in ratings[person]:
 
                 # For each book, calculate a cumulative weighted total of ratings as well as cumulative similarity
+                total_cumsum.setdefault(book,0)
                 total_cumsum[book] += ratings[friend][book] * similar_friends[friend]
+
+                similarity_cumsum.setdefault(book,0)
                 similarity_cumsum[book] += similar_friends[friend]
 
     # Compute predicted recommended score and sort
-    recommendations = [(book, total/similarity_cumsum[book]) for book,total in total_cumsum.items()]
-    recommendations.sort().reverse()
+    recommendations = [(total/similarity_cumsum[book], book) for book,total in total_cumsum.items()]
+    recommendations.sort()
+    recommendations.reverse()
 
     return recommendations
 
 if __name__ == '__main__':
     your_name = 'Tim'
     similar_friends = most_similar('Tim', ratings)
-    print recommend(your_name, most_similar, ratings)
+    print similar_friends
+    print recommend(your_name, similar_friends, ratings)
 
 
