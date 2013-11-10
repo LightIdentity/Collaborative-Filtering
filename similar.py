@@ -13,8 +13,7 @@ ratings = { 'Joe': {'Brave New World': 4.0, 'Foundation': 5.0, 'Atlas Shrugged':
 }
 
 # Compute similarity of interests between two individuals
-
-def similar(person,friend):
+def similar(person, friend):
     friend_mutual_books = {}
     your_mutual_books = {}
 
@@ -32,6 +31,7 @@ def similar(person,friend):
     sum_x2 = 0
     sum_y2 = 0
 
+    # Compute required values for Pearson Correlation
     for book in friend_mutual_books:
         sum_y += friend_mutual_books[book]
         sum_y2 += pow(friend_mutual_books[book],2)
@@ -46,6 +46,8 @@ def similar(person,friend):
 
     numerator = ((n*sum_xy) - (sum_x*sum_y))
     denominator = math.sqrt((n*sum_x2-sum_x22)*(n*sum_y2-sum_y22))
+
+    # Ensure that denominator isn't 0
     if denominator == 0 :
         return 0
 
@@ -53,5 +55,19 @@ def similar(person,friend):
 
     return correlation
 
+# Find most similar friends 
+def most_similar(person, people):
+    similar_friends = {}
+
+    for p in people:
+        if p != person:
+            correlation = similar(people[person], people[p])
+            similar_friends[p] = correlation
+
+    sorted(similar_friends.items(), key=lambda x:x[1])
+
+    return similar_friends
+
 if __name__ == '__main__':
-    print similar(ratings['Tim'],ratings['Joe'])
+    your_name = 'Tim'
+    print most_similar(your_name, ratings)
