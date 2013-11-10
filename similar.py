@@ -55,7 +55,7 @@ def similar(person, friend):
 
     return correlation
 
-# Find most similar friends 
+# Find most similar friends and return sorted decreasing
 def most_similar(person, people):
     similar_friends = {}
 
