@@ -5,14 +5,14 @@ import math
 #
 
 # Example dictionary of book ratings by person
-ratings = { 'Joe': {'Brave New World': 4.0, 'Foundation': 5.0, 'Atlas Shrugged': 3.0, 'Oryx and Crake': 3.0 },
+ratings = { 'Joe': {'Brave New World': 4.5, 'Foundation': 5.0, 'Atlas Shrugged': 3.0, 'Oryx and Crake': 3.5 },
             'Tom': {'Brave New World': 2.0, 'Slaughterhouse Five': 5.0, 'Hunger Games': 2.0},
-            'Lisa': {'Slaughterhouse Five': 4.0, 'Catch-22': 4.0, 'Catcher in the Rye': 1.0},
+            'Lisa': {'Slaughterhouse Five': 4.0, 'Catch-22': 3.0, 'Catcher in the Rye': 1.0},
             'Tim': {'Brave New World': 5.0, 'Oryx and Crake': 4.0, 'Slaughterhouse Five': 4.0, 'Catch-22': 3.0,
                     'Foundation': 3.0}
 }
 
-# Compute similarity of interests between two individuals
+# Compute similarity of interests between two individuals for user-based filtering
 def similar(person, friend):
     friend_mutual_books = {}
     your_mutual_books = {}
@@ -68,6 +68,31 @@ def most_similar(person, people):
 
     return similar_friends
 
+# Inverts the ratings so you get the ratings of each individual for a particular book. Used for item-based filtering
+def transform(ratings):
+    transformed_ratings = {}
+    for person in ratings:
+        for r in ratings[person]:
+            transformed_ratings.setdefault(r,{})
+            transformed_ratings[r][person] = ratings[person][r]
+
+    return transformed_ratings
+
+# Computes similarity between items for item-based filtering
+# Needs fixing  
+def similar_items(ratings):
+    result = {}
+
+    for item in ratings:
+        scores = similar(ratings[item], ratings)
+        result[item] = scores
+
+    return result
+
 if __name__ == '__main__':
     your_name = 'Tim'
     print most_similar(your_name, ratings)
+    print
+    ratings = transform(ratings)
+    print ratings
+    print similar_items(ratings)
