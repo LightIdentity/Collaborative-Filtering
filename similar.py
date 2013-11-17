@@ -79,15 +79,33 @@ def transform(ratings):
     return transformed_ratings
 
 # Computes similarity between items for item-based filtering
-# Needs fixing  
-def similar_items(ratings):
+# Needs fixing
+def similar_items(name, ratings):
     result = {}
 
+    # Loop through each book
     for item in ratings:
-        scores = similar(ratings[item], ratings)
-        result[item] = scores
+        if name in ratings[item]:
+            print()
 
     return result
+
+# Return list of similarities between each book you read and have haven't read
+def most_similar_items(name, ratings):
+    books_you_read = {}
+    books_not_read = {}
+
+    for item in ratings:
+        if name in ratings[item]:
+            books_you_read[item] = ratings[item]
+        else:
+            books_not_read[item] = ratings[item]
+
+    print books_you_read
+    print books_not_read
+
+
+
 
 if __name__ == '__main__':
     your_name = 'Tim'
@@ -95,4 +113,6 @@ if __name__ == '__main__':
     print
     ratings = transform(ratings)
     print ratings
-    print similar_items(ratings)
+    print
+    print most_similar_items(your_name, ratings)
+
