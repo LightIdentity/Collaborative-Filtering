@@ -6,49 +6,45 @@ import math
 
 # Example dictionary of book ratings by person
 ratings = { 'Joe': {'Brave New World': 4.5, 'Foundation': 5.0, 'Atlas Shrugged': 3.0, 'Oryx and Crake': 3.5 },
-            'Tom': {'Brave New World': 2.0, 'Slaughterhouse Five': 5.0, 'Hunger Games': 2.0},
+            'Tom': {'Brave New World': 2.0, 'Slaughterhouse Five': 5.0, 'Hunger Games': 2.0, 'Catcher in the Rye': 3.0},
             'Lisa': {'Slaughterhouse Five': 4.0, 'Catch-22': 3.0, 'Catcher in the Rye': 1.0},
             'Tim': {'Brave New World': 5.0, 'Oryx and Crake': 4.0, 'Slaughterhouse Five': 4.0, 'Catch-22': 3.0,
-                    'Foundation': 3.0}
+                    'Foundation': 3.0},
+            'Chris': {'Catcher in the Rye': 3.5, 'Hunger Games': 3.5},
+            'Michael': {'Catcher in the Rye': 1.5, 'Hunger Games': 5.0},
+            'Laura': {'Slaughterhouse Five': 3.0, 'Catcher in the Rye': 2.0, 'Hunger Games': 1.5}
 }
 
-# Compute similarity of interests between two individuals for user-based filtering
-def similar(person, friend):
-    friend_mutual_books = {}
-    your_mutual_books = {}
-
-    # Find mutual books
-    for book in friend:
-        if book in person:
-            friend_mutual_books[book] = friend[book]
-            your_mutual_books[book] = person[book]
-
-    # Calculate Pearson Correlation Coefficient
-    n = len(friend_mutual_books)
+# Compute correlation between 2 sets
+def similar(your_set, other_set):
+    n = 0
     sum_xy = 0
     sum_x = 0
     sum_y = 0
     sum_x2 = 0
     sum_y2 = 0
-
     # Compute required values for Pearson Correlation
-    for book in friend_mutual_books:
-        sum_y += friend_mutual_books[book]
-        sum_y2 += pow(friend_mutual_books[book],2)
-        sum_xy += friend_mutual_books[book]*your_mutual_books[book]
+    for item in other_set:
+        if item in your_set:
+            n += 1
+            sum_y += other_set[item]
+            sum_y2 += pow(other_set[item],2)
+            sum_xy += other_set[item]*your_set[item]
 
-    for ybook in your_mutual_books:
-        sum_x += your_mutual_books[ybook]
-        sum_x2 += pow(your_mutual_books[ybook],2)
+    for item in your_set:
+        if item in other_set:
+            sum_x += your_set[item]
+            sum_x2 += pow(your_set[item],2)
 
     sum_x22 = pow(sum_x,2)
     sum_y22 = pow(sum_y,2)
 
-    numerator = ((n*sum_xy) - (sum_x*sum_y))
-    denominator = math.sqrt((n*sum_x2-sum_x22)*(n*sum_y2-sum_y22))
+    numerator = (n*sum_xy - (sum_x*sum_y))
+
+    denominator = ((n*sum_x2-(sum_x22))*(n*sum_y2-(sum_y22)))**0.5
 
     # Ensure that denominator isn't 0
-    if denominator == 0 :
+    if denominator == 0:
         return 0
 
     correlation = numerator/denominator
@@ -56,12 +52,19 @@ def similar(person, friend):
     return correlation
 
 # Find most similar friends and return sorted decreasing
-def most_similar(person, people):
+def most_similar(name, people):
     similar_friends = {}
 
+    # Iterate through each person, check it doesn't match with your name, and find the correlation between the pair
+    # of individuals
     for p in people:
-        if p != person:
-            correlation = similar(people[person], people[p])
+        if p != name:
+            # for book in people[p]:
+            #     if people[p][book] in people[name]:
+            #         friend_mutual_books[book] = people[p][book]
+            #         your_mutual_books[book] = people[name][book]
+
+            correlation = similar(people[name], people[p])
             similar_friends[p] = correlation
 
     sorted(similar_friends.items(), key=lambda x:x[1])
@@ -92,7 +95,9 @@ def most_similar_items(name, ratings):
             books_not_read[item] = ratings[item]
 
     print books_you_read
+    print
     print books_not_read
+    print
 
     # Computes similarity between books for item-based filtering
     similarity_list = []
@@ -100,7 +105,12 @@ def most_similar_items(name, ratings):
     # Computer the correlation between each pair of books
     for book in books_you_read:
         for nbook in books_not_read:
-            similarity_list.append(similar(books_you_read[book], books_not_read[nbook]))
+            print book + ' ' + nbook
+            print books_you_read[book]
+            print books_not_read[nbook]
+            print similar(books_you_read[book], books_not_read[nbook])
+            print
+            similarity_list.append((similar(books_you_read[book], books_not_read[nbook]), nbook))
         result[book] = similarity_list
         similarity_list = []
 
