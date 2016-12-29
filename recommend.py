@@ -35,7 +35,8 @@ def recommend(person, similar_friends, ratings):
                 similarity_cumsum[book] += similar_friends[friend]
 
     # Compute predicted recommended score and sort
-    recommendations = [(total/similarity_cumsum[book], book) for book,total in total_cumsum.items()]
+    recommendations = [(total/similarity_cumsum[book], book) if similarity_cumsum[book]!=0 else (0, book)
+                       for book,total in total_cumsum.items()]
     recommendations.sort()
     recommendations.reverse()
 
